@@ -358,6 +358,10 @@
 <script>
   const $ = s => document.querySelector(s);
   let scenario = 'kb7';
+  let kb7TimerId = null;
+  let kb7SecondsRemaining = 60;
+  let kb7Escalated = false;
+  let kb7Response = null;
   let kb3Age = null;
   let kb3Approved = false;
   let consentSaved = null; // null | true | false
@@ -376,11 +380,50 @@
     return `<div class="msg-ds"><div class="who">👩‍⚕️ Dược sĩ Minh Anh (Trực ca)</div>${html}</div>`;
   }
 
+  function stopKB7Timer() {
+    if (kb7TimerId !== null) {
+      clearInterval(kb7TimerId);
+      kb7TimerId = null;
+    }
+  }
+
+  function startKB7Timer() {
+    stopKB7Timer();
+    kb7SecondsRemaining = 60;
+    kb7Escalated = false;
+    kb7Response = null;
+    kb7TimerId = setInterval(() => {
+      kb7SecondsRemaining -= 1;
+      if (kb7SecondsRemaining <= 0) {
+        stopKB7Timer();
+        kb7Escalated = true;
+        render();
+        return;
+      }
+
+      const countdown = $('#kb7-countdown');
+      if (countdown) countdown.textContent = `${kb7SecondsRemaining} giây`;
+    }, 1000);
+  }
+
+  window.respondToKB7 = function(action) {
+    stopKB7Timer();
+    kb7Response = action;
+    render();
+  };
+
   function render() {
     let chatHTML = '';
     let queueHTML = '';
 
     if (scenario === 'kb7') {
+      const kb7Status = kb7Escalated
+        ? 'Bạn chưa phản hồi sau 60 giây. Cảnh báo vẫn được giữ nguyên; Dược sĩ trực đã nhận nhắc khẩn (giả lập).'
+        : kb7Response === 'emergency'
+          ? 'Bạn đã chọn gọi cấp cứu 115. Prototype không thực hiện cuộc gọi thật; cảnh báo vẫn được giữ nguyên.'
+          : kb7Response === 'pharmacist'
+            ? 'Bạn đã chọn kết nối Dược sĩ khẩn. Prototype không gửi thông báo thật; cảnh báo vẫn được giữ nguyên.'
+            : `Nếu chưa phản hồi, nhắc khẩn sẽ được đưa vào hàng đợi Dược sĩ sau <span id="kb7-countdown">${kb7SecondsRemaining} giây</span>.`;
       chatHTML += msgMe('Ba tôi đau ngực, khó thở, nhưng bảo chắc bị khó tiêu và hỏi mua thuốc gì?');
       chatHTML += msgAI(`
         <span class="badge danger">🚨 CẢNH BÁO KHẨN CẤP · Đã khóa gợi ý thuốc</span>
@@ -388,9 +431,10 @@
         <div class="card-red">
           <span class="n">4</span><b>Khuyến nghị: Đi cấp cứu hoặc gọi 115 ngay lập tức</b>
           <div class="ev">Bằng chứng: Phát hiện từ khóa nguy hiểm <i>"đau ngực, khó thở"</i> ở người cao tuổi. Nút đặt thuốc khó tiêu đã bị vô hiệu hóa.</div>
+          <div class="ev" role="status" aria-live="polite">${kb7Status}</div>
           <div class="btns">
-            <button class="btn danger" onclick="alert('Đang mở trình quay số: 115 (Giả lập)')">📞 Gọi cấp cứu 115 ngay</button>
-            <button class="btn out" onclick="alert('Đã đẩy lên ưu tiên #1 cho Dược sĩ trực!')">Kết nối Dược sĩ khẩn</button>
+            <button class="btn danger" onclick="respondToKB7('emergency')">📞 Gọi cấp cứu 115 ngay</button>
+            <button class="btn out" onclick="respondToKB7('pharmacist')">Kết nối Dược sĩ khẩn</button>
           </div>
         </div>
       `);
@@ -401,6 +445,7 @@
             <span class="pill p-no">Red-flag</span>
           </div>
           <div style="font-size:13px;margin-top:4px"><b>Tóm tắt AI:</b> Khách hỏi mua thuốc khó tiêu cho ba, nhưng có <i>đau ngực + khó thở</i>. AI đã chặn <code>goi_y_san_pham</code> và kích hoạt <code>khuyen_di_kham</code>.</div>
+          ${kb7Escalated ? '<div class="ev" role="status">⚠ Khách chưa phản hồi sau 60 giây — nhắc khẩn đã được mô phỏng.</div>' : ''}
           <div class="btns"><button class="btn danger" onclick="alert('Dược sĩ đã gọi điện nhắc khách đi cấp cứu ngay.')">Gọi xác nhận gia đình đã đi viện</button></div>
         </div>
       `;
@@ -552,7 +597,9 @@
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
       btn.classList.add('on');
+      stopKB7Timer();
       scenario = btn.dataset.sc;
+      if (scenario === 'kb7') startKB7Timer();
       kb3Age = null;
       kb3Approved = false;
       consentSaved = null;
@@ -569,12 +616,14 @@
     const val = $('#custom-input').value.trim();
     if (!val) return;
     customMsg = val;
+    stopKB7Timer();
     scenario = 'custom';
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
     render();
     $('#custom-input').value = '';
   });
 
+  startKB7Timer();
   render();
 </script>
 </body>
