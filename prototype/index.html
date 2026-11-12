@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Prototype T1 · Pharmacity Hỏi dược sĩ — UX khi AI sai & Mức tự chủ</title>
+  <style>
+    :root {
+      --ink: #1b2420;
+      --mut: #5c6660;
+      --line: #d9ddd7;
+      --bg: #f4f6f3;
+      --card: #ffffff;
+      --brand: #0b6e4f;
+      --brand-bg: #e6f4ee;
+      --warn: #8c5a00;
+      --warn-bg: #fff4d6;
+      --danger: #b42318;
+      --danger-bg: #fef0ee;
+      --info: #1d4ed8;
+      --info-bg: #eaf1ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Be Vietnam Pro", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 14.5px;
+      line-height: 1.45;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 24px 12px;
+    }
+    header h1 { font-size: 19px; margin: 0 0 4px; color: var(--brand); }
+    .sub { color: var(--mut); font-size: 13px; }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .controls span { font-size: 13px; color: var(--mut); font-weight: 600; }
+    .tab-btn {
+      border: 1.5px solid var(--line);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 13px;
+      font: inherit;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: .15s;
+    }
+    .tab-btn:hover { border-color: var(--brand); }
+    .tab-btn.on { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 600; }
+    .tab-btn.red.on { background: var(--danger); border-color: var(--danger); }
+
+    main {
+      display: grid;
+      grid-template-columns: 410px 1fr;
+      gap: 20px;
+      padding: 20px 24px 28px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    @media (max-width: 960px) {
+      main { grid-template-columns: 1fr; }
+    }
+
+    /* Phone / Customer Chat */
+    .phone {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.05);
+      display: flex;
+      flex-direction: column;
+      height: fit-content;
+    }
+    .phone-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2px 6px 10px;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .g1-banner {
+      margin: 10px 0 6px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--info-bg);
+      border: 1px solid #c7d9ff;
+      font-size: 12.5px;
+      color: #1e3a8a;
+    }
+    .chat {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 8px 2px;
+      min-height: 360px;
+      max-height: 540px;
+      overflow-y: auto;
+    }
+    .msg-me {
+      align-self: flex-end;
+      background: #0068ff;
+      color: #fff;
+      padding: 9px 12px;
+      border-radius: 14px 14px 2px 14px;
+      max-width: 86%;
+      font-size: 14px;
+    }
+    .msg-ai {
+      align-self: flex-start;
+      background: #f2f4f2;
+      padding: 10px 12px;
+      border-radius: 14px 14px 14px 2px;
+      max-width: 95%;
+      border: 1px solid #e3e7e2;
+    }
+    .msg-ds {
+      align-self: flex-start;
+      background: var(--brand-bg);
+      padding: 10px 12px;
+      border-radius: 14px 14px 14px 2px;
+      max-width: 95%;
+      border: 1px solid #b5dfc9;
+    }
+    .who { font-size: 11.5px; color: var(--mut); font-weight: 700; margin-bottom: 4px; }
+
+    .badge {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      margin: 4px 0 6px;
+    }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); border: 1px solid #f0d78c; }
+    .badge.danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #f5b8b2; }
+    .badge.ok { background: var(--brand-bg); color: var(--brand); border: 1px solid #b5dfc9; }
+
+    .card-red {
+      background: var(--danger-bg);
+      border: 1.5px solid #e58e86;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+    .card-red b { color: var(--danger); }
+    .card-warn {
+      background: var(--warn-bg);
+      border: 1px solid #ecd086;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+    .card-ok {
+      background: #fff;
+      border: 1.5px solid #b5dfc9;
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-top: 6px;
+    }
+    .ev {
+      font-size: 12.5px;
+      color: var(--mut);
+      border-left: 3px solid var(--line);
+      padding-left: 8px;
+      margin-top: 6px;
+    }
+    .btns { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 6px 10px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .btn:hover { background: #f3f4f6; }
+    .btn.pri { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .btn.pri:hover { opacity: .92; }
+    .btn.danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .btn.out { border: 1.5px solid var(--ink); }
+    .btn.chip { border-radius: 999px; background: #fff; border-color: var(--warn); color: var(--warn); }
+    .btn.chip.picked { background: var(--warn); color: #fff; }
+
+    .composer {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+    .composer input {
+      flex: 1;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 13.5px;
+    }
+
+    /* Callout numbers [1]-[6] */
+    .n {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #c2410c;
+      color: #fff;
+      font-size: 11.5px;
+      font-weight: 700;
+      margin-right: 4px;
+      vertical-align: middle;
+      flex: none;
+    }
+    .hide-n .n { display: none; }
+
+    /* Right column */
+    aside { display: flex; flex-direction: column; gap: 16px; }
+    .panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 18px;
+    }
+    .panel h2 { font-size: 15.5px; margin: 0 0 10px; display: flex; align-items: center; gap: 6px; }
+    .q-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      background: #fafbf9;
+    }
+    .q-item.red { border-color: #e58e86; background: var(--danger-bg); }
+    .q-item.warn { border-color: #ecd086; background: #fffdf5; }
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .p-auto { background: var(--brand-bg); color: var(--brand); }
+    .p-ask { background: var(--warn-bg); color: var(--warn); }
+    .p-no { background: var(--danger-bg); color: var(--danger); }
+
+    table { border-collapse: collapse; width: 100%; font-size: 13px; }
+    th, td { border-bottom: 1px solid var(--line); padding: 6px; text-align: left; vertical-align: top; }
+    th { color: var(--mut); font-weight: 700; }
+    .ann { list-style: none; padding: 0; margin: 0; font-size: 13.5px; }
+    .ann li { margin-bottom: 6px; }
+    .foot { font-size: 12px; color: var(--mut); text-align: center; padding: 0 20px 20px; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Prototype T1 · Pharmacity "Hỏi dược sĩ" — UX khi AI sai &amp; Mức tự chủ</h1>
+  <div class="sub">Dữ liệu dựng theo <code>tracks/t1-healthcare.md</code> &amp; <code>spec.md</code>. Không gọi API thật, không dùng dữ liệu bệnh nhân thật.</div>
+  <div class="controls">
+    <span>Chọn kịch bản test:</span>
+    <button class="tab-btn red on" data-sc="kb7">KB7 · Ba đau ngực, khó thở (Đắt nhất 1)</button>
+    <button class="tab-btn" data-sc="kb3">KB3 · Bé sốt đòi Hapacol (Đắt nhất 2)</button>
+    <button class="tab-btn" data-sc="kb1">Ca bình thường · Nước muối sinh lý</button>
+    <button class="tab-btn" data-sc="kb4">KB4 · Đòi thuốc kê đơn Medrol</button>
+    <label style="margin-left:auto;font-size:13px;cursor:pointer;">
+      <input type="checkbox" id="toggle-n" checked> Hiện số chú thích [1]–[6]
+    </label>
+  </div>
+</header>
+
+<main id="app">
+  <!-- Màn hình 1: Khách hàng -->
+  <section class="phone">
+    <div class="phone-top">
+      <span>💬 Pharmacity · Hỏi dược sĩ (Khách hàng)</span>
+      <span style="color:var(--brand);font-size:12px;">● Đang trực tuyến</span>
+    </div>
+    <div class="g1-banner">
+      <span class="n">1</span><b>Trợ lý AI Pharmacity</b> — Chỉ hỗ trợ tra cứu thông tin, <b>không thay thế bác sĩ/dược sĩ</b>. Mọi gợi ý thuốc điều trị đều cần Dược sĩ duyệt.
+    </div>
+    <div class="chat" id="chat"></div>
+    <form class="composer" id="custom-form">
+      <input type="text" id="custom-input" placeholder="Nhập 'ca lạ' bất kỳ để test mức tự chủ lúc demo...">
+      <button class="btn pri" type="submit">Gửi</button>
+    </form>
+  </section>
+
+  <!-- Màn hình 2: Dược sĩ & Bảng đối chiếu -->
+  <aside>
+    <div class="panel">
+      <h2><span class="n">6</span>Màn hình 2 · Hàng đợi Dược sĩ trực online</h2>
+      <div id="ds-queue"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Mức tự chủ 5 tool của nhóm (§4)</h2>
+      <table>
+        <tr><th>Tool</th><th>Mức tự chủ</th><th>Cơ chế bảo vệ trên màn hình</th></tr>
+        <tr>
+          <td><code>khuyen_di_kham</code></td>
+          <td><span class="pill p-auto">Tự làm</span></td>
+          <td>Phát hiện Red-flag → hiện thẻ đỏ gọi 115 ngay ở giây 0.</td>
+        </tr>
+        <tr>
+          <td><code>chuyen_duoc_si</code></td>
+          <td><span class="pill p-auto">Tự làm</span></td>
+          <td>Đẩy sang hàng đợi Dược sĩ kèm tóm tắt; luôn có nút thoát cho khách.</td>
+        </tr>
+        <tr>
+          <td><code>goi_y_san_pham</code></td>
+          <td><span class="pill p-ask">Cần Dược sĩ duyệt</span></td>
+          <td>Tách bước: AI chỉ tự tra cứu giá/tồn kho OTC thường; gợi ý điều trị phải chờ Dược sĩ duyệt nút gửi.</td>
+        </tr>
+        <tr>
+          <td><code>luu_ghi_chu_suc_khoe</code></td>
+          <td><span class="pill p-ask">Cần khách duyệt</span></td>
+          <td>Chỉ lưu sau khi khách bấm nút <b>[Đồng ý lưu]</b>.</td>
+        </tr>
+        <tr>
+          <td><code>ban_thuoc_ke_don</code></td>
+          <td><span class="pill p-no">Cấm</span></td>
+          <td>Không có nút bán/đặt mua thuốc kê đơn qua AI chat.</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="panel">
+      <h2>Chú thích HAX / PAIR trên giao diện (§5)</h2>
+      <ul class="ann">
+        <li><span class="n">1</span><b>HAX G1</b> (Minh bạch): Banner đầu chat nói rõ đây là AI, không thay thế bác sĩ/dược sĩ.</li>
+        <li><span class="n">2</span><b>PAIR Explainability + Trust</b>: Hiện lý do độ chắc bằng chữ đời thường (thiếu tuổi/cân nặng), không dùng %.</li>
+        <li><span class="n">3</span><b>HAX G10</b> (Thu hẹp phạm vi): Hỏi 1 chạm tuổi/cân nặng của bé thay vì đoán liều Hapacol.</li>
+        <li><span class="n">4</span><b>PAIR Errors &amp; Graceful Failure</b>: Thẻ đỏ cấp cứu khóa hoàn toàn nút đặt mua thuốc khó tiêu.</li>
+        <li><span class="n">5</span><b>Cần khách duyệt</b>: Hộp xác nhận 1 chạm trước khi gọi <code>luu_ghi_chu_suc_khoe</code>.</li>
+        <li><span class="n">6</span><b>Cần Dược sĩ duyệt</b>: Màn hình Dược sĩ nhận ca ưu tiên &amp; bấm duyệt trước khi gửi gợi ý thuốc.</li>
+      </ul>
+    </div>
+  </aside>
+</main>
+
+<div class="foot">LAB5 · Nhóm T1 Pharmacity · Prototype 1 file HTML phục vụ Demo &amp; chấm điểm R5.</div>
+
+<script>
+  const $ = s => document.querySelector(s);
+  let scenario = 'kb7';
+  let kb3Age = null;
+  let kb3Approved = false;
+  let consentSaved = null; // null | true | false
+  let customMsg = '';
+
+  const dsQueueEl = $('#ds-queue');
+  const chatEl = $('#chat');
+
+  function msgMe(text) {
+    return `<div class="msg-me">${text}</div>`;
+  }
+  function msgAI(html) {
+    return `<div class="msg-ai"><div class="who">🤖 Trợ lý AI Pharmacity</div>${html}</div>`;
+  }
+  function msgDS(html) {
+    return `<div class="msg-ds"><div class="who">👩‍⚕️ Dược sĩ Minh Anh (Trực ca)</div>${html}</div>`;
+  }
+
+  function render() {
+    let chatHTML = '';
+    let queueHTML = '';
+
+    if (scenario === 'kb7') {
+      chatHTML += msgMe('Ba tôi đau ngực, khó thở, nhưng bảo chắc bị khó tiêu và hỏi mua thuốc gì?');
+      chatHTML += msgAI(`
+        <span class="badge danger">🚨 CẢNH BÁO KHẨN CẤP · Đã khóa gợi ý thuốc</span>
+        <div>Tôi là Trợ lý AI của Pharmacity — không thể chẩn đoán hoặc đánh giá tình trạng cấp cứu. Vì bác có dấu hiệu <b>đau ngực và khó thở</b> (dù nghi do khó tiêu), đây có thể là dấu hiệu nguy hiểm cần kiểm tra y tế ngay. <b>Hệ thống sẽ không gợi ý thuốc lúc này.</b></div>
+        <div class="card-red">
+          <span class="n">4</span><b>Khuyến nghị: Đi cấp cứu hoặc gọi 115 ngay lập tức</b>
+          <div class="ev">Bằng chứng: Phát hiện từ khóa nguy hiểm <i>"đau ngực, khó thở"</i> ở người cao tuổi. Nút đặt thuốc khó tiêu đã bị vô hiệu hóa.</div>
+          <div class="btns">
+            <button class="btn danger" onclick="alert('Đang mở trình quay số: 115 (Giả lập)')">📞 Gọi cấp cứu 115 ngay</button>
+            <button class="btn out" onclick="alert('Đã đẩy lên ưu tiên #1 cho Dược sĩ trực!')">Kết nối Dược sĩ khẩn</button>
+          </div>
+        </div>
+      `);
+      queueHTML = `
+        <div class="q-item red">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <b>🚨 CA ĐỎ #104 · Nghi cấp cứu (0 giây chờ)</b>
+            <span class="pill p-no">Red-flag</span>
+          </div>
+          <div style="font-size:13px;margin-top:4px"><b>Tóm tắt AI:</b> Khách hỏi mua thuốc khó tiêu cho ba, nhưng có <i>đau ngực + khó thở</i>. AI đã chặn <code>goi_y_san_pham</code> và kích hoạt <code>khuyen_di_kham</code>.</div>
+          <div class="btns"><button class="btn danger" onclick="alert('Dược sĩ đã gọi điện nhắc khách đi cấp cứu ngay.')">Gọi xác nhận gia đình đã đi viện</button></div>
+        </div>
+      `;
+    }
+    else if (scenario === 'kb3') {
+      chatHTML += msgMe('Bé nhà tôi đang sốt, bán cho tôi gói Hapacol được không?');
+      chatHTML += msgAI(`
+        <span class="badge warn"><span class="n">2</span>Độ chắc: Chưa đủ thông tin an toàn</span>
+        <div>Vì người dùng thuốc là <b>trẻ nhỏ</b> và Hapacol có nhiều hàm lượng theo cân nặng (80mg / 150mg / 250mg), AI <b>chưa thể gợi ý hay lên đơn ngay</b> để tránh dùng sai liều cho bé.</div>
+        <div class="card-warn">
+          <span class="n">3</span><b>Ba/mẹ chọn nhanh để Dược sĩ kiểm tra đúng loại:</b>
+          <div class="btns">
+            <button class="btn chip ${kb3Age==='<2 tuổi'?'picked':''}" onclick="pickAge('<2 tuổi')">Dưới 2 tuổi</button>
+            <button class="btn chip ${kb3Age==='2-5 tuổi (14kg)'?'picked':''}" onclick="pickAge('2-5 tuổi (14kg)')">2–5 tuổi (~14kg)</button>
+            <button class="btn chip ${kb3Age==='>5 tuổi'?'picked':''}" onclick="pickAge('>5 tuổi')">Trên 5 tuổi</button>
+            <button class="btn out" onclick="alert('Đã chuyển ngay cho Dược sĩ trực!')">Chuyển Dược sĩ ngay</button>
+          </div>
+        </div>
+      `);
+
+      if (kb3Age) {
+        chatHTML += msgMe(`Bé nhà mình ${kb3Age}, đang sốt 38.5°C từ tối nay.`);
+        if (!kb3Approved) {
+          chatHTML += msgAI(`
+            <div>Đã gửi thông tin <b>${kb3Age}, sốt 38.5°C</b> sang <b>Dược sĩ trực</b> để duyệt gợi ý sản phẩm phù hợp (dự kiến 1–2 phút).</div>
+            <div class="card-ok" style="margin-top:8px">
+              <span class="n">5</span><b>Lưu ghi chú sức khỏe?</b> (<code>luu_ghi_chu_suc_khoe</code>)<br>
+              <small>Lưu thông tin "Bé ${kb3Age}" vào hồ sơ để lần sau không phải hỏi lại?</small>
+              <div class="btns">
+                <button class="btn pri" onclick="setConsent(true)">Đồng ý lưu</button>
+                <button class="btn" onclick="setConsent(false)">Không lưu</button>
+              </div>
+              ${consentSaved === true ? '<div style="color:var(--brand);font-size:12.5px;margin-top:4px">✔ Đã lưu theo xác nhận của bạn.</div>' : ''}
+              ${consentSaved === false ? '<div style="color:var(--mut);font-size:12.5px;margin-top:4px">✖ Không lưu — chỉ dùng trong phiên chat này.</div>' : ''}
+            </div>
+          `);
+        } else {
+          chatHTML += msgDS(`
+            <div>Chào ba/mẹ, Dược sĩ đã kiểm tra thông tin bé <b>${kb3Age}, sốt 38.5°C</b>:</div>
+            <div class="card-ok">
+              <b>Hapacol 250mg (gói sủi cho trẻ 10–15kg)</b> · 18.000đ/hộp<br>
+              <small>Lưu ý: Dùng theo hướng dẫn trên nhãn, cách 4–6 giờ nếu còn sốt. Nếu bé sốt trên 39°C hoặc lừ đừ hãy đưa đi khám ngay.</small>
+              <div class="btns"><button class="btn pri" onclick="alert('Đã thêm Hapacol 250mg vào giỏ hàng!')">Đặt mua ngay</button></div>
+            </div>
+          `);
+        }
+
+        queueHTML = `
+          <div class="q-item warn">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <b>🟡 CA TRẺ NHỎ #105 · Chờ duyệt gợi ý</b>
+              <span class="pill p-ask">Cần Dược sĩ duyệt</span>
+            </div>
+            <div style="font-size:13px;margin-top:4px">
+              <b>Tóm tắt AI:</b> Khách hỏi mua Hapacol cho bé. Đã sàng lọc: <b>${kb3Age}, sốt 38.5°C</b>.<br>
+              <b>Nháp AI đề xuất:</b> Hapacol 250mg (chưa gửi nút đặt cho khách).
+            </div>
+            <div class="btns">
+              ${!kb3Approved
+                ? `<button class="btn pri" onclick="approveKB3()">✔ Duyệt &amp; Gửi gợi ý cho khách</button>`
+                : `<span style="color:var(--brand);font-weight:700;font-size:13px">✔ Đã duyệt &amp; gửi cho khách</span>`}
+            </div>
+          </div>
+        `;
+      } else {
+        queueHTML = `<div class="q-item"><i>Đang chờ khách chọn nhanh độ tuổi của bé (1 chạm) hoặc bấm "Chuyển Dược sĩ ngay"...</i></div>`;
+      }
+    }
+    else if (scenario === 'kb1') {
+      chatHTML += msgMe('Pharmacity gần mình còn nước muối sinh lý không, tối nay mình qua lấy.');
+      chatHTML += msgAI(`
+        <span class="badge ok">✔ Tự làm (Tra cứu tồn kho OTC thường)</span>
+        <div>Dạ, chi nhánh <b>Pharmacity gần bạn (Cách 450m)</b> hiện <b>còn hàng</b>:</div>
+        <div class="card-ok">
+          <b>Nước muối sinh lý Natri Clorid 0.9% (500ml)</b> · 12.000đ<br>
+          <small>Mở cửa đến 22:30 tối nay. Không cần chờ Dược sĩ duyệt vì là sản phẩm thông thường.</small>
+          <div class="btns">
+            <button class="btn pri" onclick="alert('Đã giữ hàng tại quầy!')">Giữ hàng qua lấy</button>
+            <button class="btn" onclick="alert('Đã hoàn tác thao tác giữ hàng!')">Hoàn tác</button>
+          </div>
+        </div>
+      `);
+      queueHTML = `<div class="q-item"><i>Không đẩy sang hàng đợi Dược sĩ — khách tự tra cứu xong trong 2 giây, không phải chờ vô ích.</i></div>`;
+    }
+    else if (scenario === 'kb4') {
+      chatHTML += msgMe('Tôi đang dị ứng ngứa ngáy nổi mề đay khắp người, hãy đưa tôi vỉ Medrol uống cho lặn nhanh.');
+      chatHTML += msgAI(`
+        <span class="badge danger">⛔ CẤM tự bán thuốc kê đơn</span>
+        <div><b>Medrol (Methylprednisolone) là thuốc kê đơn</b>. Hệ thống AI <b>không được phép bán hoặc gợi ý thuốc thay thế</b> qua chat tự động.</div>
+        <div class="card-warn">
+          <b>Kiểm tra nhanh an toàn:</b> Bạn có bị <b>khó thở, sưng môi/mắt hay chóng mặt</b> không? Nếu có, hãy đến cơ sở y tế ngay. Nếu không, bấm nút dưới để Dược sĩ trực kiểm tra đơn/tư vấn trực tiếp.
+          <div class="btns">
+            <button class="btn pri" onclick="alert('Đã chuyển Dược sĩ kiểm tra đơn thuốc!')">Chuyển Dược sĩ tư vấn</button>
+          </div>
+        </div>
+      `);
+      queueHTML = `
+        <div class="q-item warn">
+          <b>🟠 CA THUỐC KÊ ĐƠN #106</b>
+          <div style="font-size:13px;margin-top:4px">Khách đòi mua Medrol (corticoid) trị mề đay. AI đã khóa <code>ban_thuoc_ke_don</code> và sẵn sàng chuyển Dược sĩ.</div>
+        </div>
+      `;
+    }
+    else if (scenario === 'custom') {
+      chatHTML += msgMe(customMsg);
+      const lower = customMsg.toLowerCase();
+      const isRed = /đau ngực|khó thở|ngất|co giật|lơ mơ|chảy máu nhiều/.test(lower);
+      const isRx = /kháng sinh|medrol|amoxicillin|huyết áp|kê đơn|tiểu đường/.test(lower);
+      const isChild = /bé|con|trẻ|bầu|mang thai|người già|ông|bà/.test(lower);
+      const isOut = /lãi|doanh thu|giảm giá|20k|chính trị|thời tiết/.test(lower);
+
+      if (isRed) {
+        chatHTML += msgAI(`<span class="badge danger">🚨 Red-flag · Tự làm: khuyen_di_kham</span><div>Phát hiện dấu hiệu nguy hiểm trong tin nhắn. <b>Không gợi ý thuốc.</b> Vui lòng đi khám hoặc gọi <b>115</b> ngay lập tức!</div><div class="btns"><button class="btn danger">Gọi 115</button><button class="btn out">Dược sĩ khẩn</button></div>`);
+        queueHTML = `<div class="q-item red"><b>🚨 CA LẠ RED-FLAG:</b> "${customMsg}" — Đã chặn gợi ý thuốc, ưu tiên #1.</div>`;
+      } else if (isRx) {
+        chatHTML += msgAI(`<span class="badge danger">⛔ CẤM: ban_thuoc_ke_don</span><div>Sản phẩm bạn nhắc có thể thuộc danh mục <b>thuốc kê đơn</b>. AI không tự bán hoặc gợi ý thay thế — mời bạn kết nối Dược sĩ kiểm tra đơn hợp lệ.</div><div class="btns"><button class="btn pri">Chuyển Dược sĩ</button></div>`);
+        queueHTML = `<div class="q-item warn"><b>🟠 CA LẠ KÊ ĐƠN:</b> "${customMsg}" — Đã chặn bán tự động.</div>`;
+      } else if (isChild) {
+        chatHTML += msgAI(`<span class="badge warn">🟡 Cần Dược sĩ duyệt · Hỏi sàng lọc (G10)</span><div>Vì người dùng thuộc nhóm nhạy cảm (trẻ nhỏ / bà bầu / người cao tuổi), AI cần biết thêm <b>tuổi, cân nặng và tiền sử dị ứng</b> trước khi chuyển Dược sĩ duyệt gợi ý.</div><div class="btns"><button class="btn pri">Chuyển Dược sĩ ngay</button></div>`);
+        queueHTML = `<div class="q-item warn"><b>🟡 CA LẠ NHÓM NHẠY CẢM:</b> "${customMsg}" — Chờ sàng lọc &amp; Dược sĩ duyệt.</div>`;
+      } else if (isOut) {
+        chatHTML += msgAI(`<span class="badge warn">Ngoài phạm vi tư vấn</span><div>Xin lỗi, kênh Hỏi dược sĩ chỉ hỗ trợ tư vấn sức khỏe và sản phẩm nhà thuốc (không trả lời thông tin tài chính hay đàm phán giá ngoài hệ thống).</div>`);
+        queueHTML = `<div class="q-item"><i>Ca ngoài phạm vi — AI từ chối lịch sự, không làm phiền Dược sĩ.</i></div>`;
+      } else {
+        chatHTML += msgAI(`<span class="badge warn">🟡 Chưa đủ thông tin · Hỏi lại 1 câu (G10)</span><div>Để đảm bảo an toàn, bạn cho tôi biết thêm: <b>thuốc này dùng cho ai (tuổi), triệu chứng bao lâu rồi và có đang dùng thuốc nào khác không?</b> Hoặc bấm chuyển Dược sĩ trực tiếp.</div><div class="btns"><button class="btn pri">Chuyển Dược sĩ ngay</button></div>`);
+        queueHTML = `<div class="q-item"><i>Ca lạ mặc định đi vào luồng an toàn: hỏi sàng lọc trước khi gợi ý.</i></div>`;
+      }
+    }
+
+    chatEl.innerHTML = chatHTML;
+    dsQueueEl.innerHTML = queueHTML;
+  }
+
+  window.pickAge = function(age) {
+    kb3Age = age;
+    kb3Approved = false;
+    render();
+  };
+  window.approveKB3 = function() {
+    kb3Approved = true;
+    render();
+  };
+  window.setConsent = function(val) {
+    consentSaved = val;
+    render();
+  };
+
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+      btn.classList.add('on');
+      scenario = btn.dataset.sc;
+      kb3Age = null;
+      kb3Approved = false;
+      consentSaved = null;
+      render();
+    });
+  });
+
+  $('#toggle-n').addEventListener('change', e => {
+    $('#app').classList.toggle('hide-n', !e.target.checked);
+  });
+
+  $('#custom-form').addEventListener('submit', e => {
+    e.preventDefault();
+    const val = $('#custom-input').value.trim();
+    if (!val) return;
+    customMsg = val;
+    scenario = 'custom';
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('on'));
+    render();
+    $('#custom-input').value = '';
+  });
+
+  render();
+</script>
+</body>
+</html>
+
