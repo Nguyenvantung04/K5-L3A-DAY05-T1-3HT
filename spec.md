@@ -58,7 +58,7 @@
   - Nhãn bằng chứng ngắn gọn: *"Lý do dừng gợi ý: Phát hiện từ khóa nguy hiểm — Đau ngực, Khó thở (người cao tuổi)."*
   - Hai nút hành động rõ ràng: **[Gọi cấp cứu 115 ngay]** và **[Kết nối Dược sĩ khẩn (Ưu tiên số 1 — không xếp hàng)]**.
 - **Làm gì tiếp:**
-  - Người dùng bấm gọi 115 hoặc tìm cơ sở y tế gần nhất. Nếu người dùng vẫn muốn hỏi thêm, bấm nút kết nối Dược sĩ ưu tiên (bỏ qua hàng chờ thông thường). Nếu người dùng **không làm gì trong 60 giây**, màn hình giữ nguyên thẻ cảnh báo đỏ và tự động đẩy thông báo khẩn sang màn hình Dược sĩ trực.
+  - Người dùng bấm gọi 115 hoặc tìm cơ sở y tế gần nhất. Nếu người dùng vẫn muốn hỏi thêm, bấm nút kết nối Dược sĩ ưu tiên (bỏ qua hàng chờ thông thường). Nếu người dùng **không làm gì trong 60 giây**, màn hình giữ nguyên thẻ cảnh báo đỏ và thêm nhắc khẩn vào hàng đợi Dược sĩ. Trong prototype, bộ đếm và nhắc khẩn được mô phỏng tại chỗ, không gửi thông báo thật vì không có backend.
 - **Ai được báo, sau bao lâu:**
   - **Dược sĩ trực ca online** được báo **ngay lập tức (0 giây, gắn cờ ĐỎ / Red-flag)** kèm bản tóm tắt 1 dòng (*"Ca nghi cấp cứu: đau ngực + khó thở, khách định mua thuốc khó tiêu — AI đã chặn gợi ý thuốc"*).
 - **Quyết định xử lý khi AI không chắc / nguy hiểm:**
@@ -162,7 +162,7 @@
 - **[1] Banner nhận diện AI ở đầu khung chat:** Hiện dòng *"Trợ lý AI Pharmacity · Chỉ hỗ trợ thông tin, không thay thế bác sĩ/dược sĩ"* → **HAX G1** (làm rõ khả năng & giới hạn hệ thống theo Luật AI 134/2025/QH15).
 - **[2] Nhãn bằng chứng & độ chắc trên thẻ phản hồi (KB3 - Bé sốt):** Hiện badge vàng *"Độ chắc: Chưa đủ thông tin an toàn (Thiếu tuổi & cân nặng của bé)"* và ẩn hoàn toàn nút "Đặt mua Hapacol" → **PAIR Explainability + Trust** & **Mức tự chủ: Cần người duyệt (`goi_y_san_pham`)**.
 - **[3] Bộ nút chọn nhanh 1 chạm + Lối thoát gặp Dược sĩ (KB3):** Các chip `[Dưới 2 tuổi]`, `[2–5 tuổi]`, `[Trên 5 tuổi]` giúp khách đang vội trả lời nhanh, kèm nút `[Chuyển Dược sĩ ngay]` → **HAX G10 (Thu hẹp phạm vi)** & **Mức tự chủ: Tự làm (`chuyen_duoc_si`)**.
-- **[4] Thẻ cảnh báo khẩn cấp màu đỏ (KB7 - Đau ngực, khó thở):** Khóa hoàn toàn vùng gợi ý thuốc, hiện lý do kích hoạt (*"Phát hiện dấu hiệu nguy hiểm: Đau ngực, Khó thở"*), nút `[Gọi 115 ngay]` và `[Kết nối Dược sĩ khẩn]` → **PAIR Errors + Graceful Failure** & **Mức tự chủ: Tự làm (`khuyen_di_kham`)**.
+- **[4] Thẻ cảnh báo khẩn cấp màu đỏ (KB7 - Đau ngực, khó thở):** Khóa hoàn toàn vùng gợi ý thuốc, hiện lý do kích hoạt (*"Phát hiện dấu hiệu nguy hiểm: Đau ngực, Khó thở"*), nút `[Gọi 115 ngay]` và `[Kết nối Dược sĩ khẩn]`. Nếu khách không phản hồi trong 60 giây, bộ đếm thêm nhắc khẩn vào hàng đợi Dược sĩ nhưng vẫn giữ nguyên thẻ đỏ; đây là mô phỏng trong prototype, không gửi thông báo thật → **PAIR Errors + Graceful Failure** & **Mức tự chủ: Tự làm (`khuyen_di_kham`)**.
 - **[5] Hộp xác nhận lưu hồ sơ sức khỏe:** Hiện thẻ hỏi *"Lưu thông tin 'Bé 3 tuổi' vào hồ sơ để lần sau tư vấn nhanh hơn?"* với nút `[Đồng ý lưu]` / `[Không lưu]` → **Mức tự chủ: Cần khách duyệt (`luu_ghi_chu_suc_khoe`)**.
 - **[6] Bảng điều khiển phía Dược sĩ (Màn hình 2):** Hiển thị hàng đợi ưu tiên (Ca Red-flag KB7 lên đầu màu đỏ, Ca trẻ nhỏ KB3 màu vàng), kèm tóm tắt thông tin sàng lọc và nút `[Duyệt & Gửi gợi ý]` / `[Nhận chat trực tiếp]` cho `goi_y_san_pham`.
 
@@ -195,6 +195,6 @@
 
 - **Phân công trình bày (4 phút):**
   - *30 giây đầu (Nguyễn Ngọc Hiếu):* Giới thiệu lát cắt T1 Pharmacity và 2 kịch bản đắt nhất (KB7 cấp cứu, KB3 trẻ nhỏ).
-  - *Bấm Prototype ca khó & UX khi sai (Nguyễn Văn Tùng & Nguyễn Mạnh Hoạch):* Demo luồng KB3 & KB7, chỉ rõ các chỗ đánh số [1]–[6] tương ứng nguyên tắc HAX/PAIR.
+  - *Bấm Prototype ca khó & UX khi sai (Nguyễn Văn Tùng & Vũ Mạnh Hoạch):* Demo luồng KB3 & KB7, chỉ rõ các chỗ đánh số [1]–[6] tương ứng nguyên tắc HAX/PAIR.
   - *Mức tự chủ & Cost-of-error (Nguyễn Văn Huy):* Giải thích vì sao `goi_y_san_pham` cần duyệt còn `khuyen_di_kham` tự làm, và trả lời ca lạ.
 - **Ca lạ nhận được ở demo:** *(Điền trực tiếp trong buổi demo 30 phút cuối: mô tả ca lạ TA/giảng viên đưa, prototype đã phản hồi thế nào theo mức tự chủ §4, và nhóm có điều chỉnh gì sau ca đó không).*
