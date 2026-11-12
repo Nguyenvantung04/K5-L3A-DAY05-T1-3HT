@@ -5,7 +5,7 @@
 | Họ và Tên | Mã Học Viên | Việc đã làm |
 |---|---|---|
 | Nguyễn Ngọc Hiếu | 2A202603502 | Chốt §1 Phạm vi, §2 Bảng kịch bản & chọn 2 ca đắt nhất |
-| Nguyễn Mạnh Hoạch | 2A202603500 | Thiết kế §3 UX khi AI sai, câu chữ AI & nguyên tắc HAX/PAIR |
+| Vũ Mạnh Hoạch | 2A202603500 | Thiết kế §3 UX khi AI sai, câu chữ AI & nguyên tắc HAX/PAIR |
 | Nguyễn Văn Huy | 2A202603432 | Thiết kế §4 Mức tự chủ theo cost-of-error & thử nghiệm 3 ca |
 | Nguyễn Văn Tùng | 2A202603471 | Dựng §5 Prototype, đánh số màn hình, §6 Tiêu chí & §7 Kịch bản Demo |
 
